@@ -624,21 +624,22 @@ timeseries.prototype.regression_forecast = function(options) {
 	var j;
 	var l = this.data.length;
 	
-	var mean	= this.mean();
+	var mean = this.mean();
 	this.offset(-mean);
-	var backup 	= this.clone();
-	var buffer 	= this.clone();
+	var backup = this.clone();
+	var buffer = this.clone();
 	
-	var sample 		= buffer.slice(options.start-1-options.sample, options.start);
+	var sample = buffer.slice(options.start-1-options.sample, options.start);
 	
 	// The current data to process is only a sample of the real data.
-	this.data		= sample;
+	this.data = sample;
 	// Get the AR coeffs
-	var coeffs 		= this[options.method]({degree: options.degree});
-	console.log("coeffs",coeffs);
+	var coeffs = this[options.method]({degree: options.degree});
+	//console.log("coeffs",coeffs);
 	
-	for (i=options.start;i<options.start+options.n;i++) {
-		buffer[i][1]	= 0;
+	for (i = options.start; i < options.start + options.n; i++) {
+		if(!buffer[i]) buffer[i] = []
+		buffer[i][1] = 0;
 		for (j=0;j<coeffs.length;j++) {
 			if (options.method == 'ARMaxEntropy') {
 				buffer[i][1] -= buffer[i-1-j][1]*coeffs[j];
@@ -646,7 +647,7 @@ timeseries.prototype.regression_forecast = function(options) {
 				buffer[i][1] += buffer[i-1-j][1]*coeffs[j];
 			}
 		}
-		console.log("buffer["+i+"][1]",buffer[i][1]);
+		//console.log("buffer["+i+"][1]",buffer[i][1]);
 	}
 	this.data = buffer;
 	this.offset(mean);
@@ -684,7 +685,7 @@ timeseries.prototype.regression_forecast_optimize = function(options) {
 						degree:	deg,
 						data:	options.data
 					});
-					console.log("Trying method("+methods[i]+") degree("+deg+") sample("+ss+")\t"+mse);
+					//console.log("Trying method("+methods[i]+") degree("+deg+") sample("+ss+")\t"+mse);
 					if (!isNaN(mse)) {
 						MSEData.push({
 							MSE:	mse,
@@ -705,7 +706,7 @@ timeseries.prototype.regression_forecast_optimize = function(options) {
 		return a.MSE>b.MSE;
 	});
 	
-	console.log("Best Settings: ",MSEData[0]);
+	//console.log("Best Settings: ",MSEData[0]);
 	
 	// Return the best settings
 	return MSEData[0];
@@ -978,7 +979,7 @@ timeseries.prototype.SolveLE = function(mat, vec, n) {
 		hvec = mat[i];
 		pivot = hvec[i];
 		if (Math.abs(pivot) == 0.0) {
-			console.log("Singular matrix - fatal!");
+			//console.log("Singular matrix - fatal!");
 			return false;
 		}
 		for (j=i+1;j<n;j++) {
